@@ -1,0 +1,76 @@
+Vault — Node.js + MongoDB Login System
+A production-ready authentication system with JWT tokens, bcrypt password hashing, rate limiting, and account lockout protection.
+Features
+
+Registration with input validation (name, email, strong password)
+Login with JWT token response
+Account lockout after 5 failed attempts (2-hour lock)
+Password hashing with bcrypt (12 salt rounds)
+JWT authentication middleware for protected routes
+Role-based access control (user / admin)
+Rate limiting — global (100/15min) + auth endpoint (10/15min)
+Security headers via Helmet.js
+Input validation via express-validator
+Profile update and password change endpoints
+Polished frontend UI with password strength meter
+
+Project Structure
+login-system/
+├── models/
+│   └── User.js           # Mongoose schema with bcrypt, lockout logic
+├── middleware/
+│   └── auth.js           # JWT protect + role restrictTo middleware
+├── routes/
+│   └── auth.js           # register, login, /me, update, change-password
+├── public/
+│   └── index.html        # Frontend login/register UI
+├── server.js             # Express app + MongoDB connection
+├── package.json
+└── .env.example
+Quick Start
+1. Install Dependencies
+bashnpm install
+2. Configure Environment
+bashcp .env.example .env
+# Edit .env with your MongoDB URI and a strong JWT_SECRET
+3. Start MongoDB
+bash# Local MongoDB
+mongod
+
+# Or use MongoDB Atlas — paste your connection string in .env
+4. Run the Server
+bash# Development (with auto-restart)
+npm run dev
+
+# Production
+npm start
+Server runs at http://localhost:3000
+API Endpoints
+MethodEndpointAuthDescriptionPOST/api/auth/register❌Create accountPOST/api/auth/login❌Login, get JWTGET/api/auth/me✅Get current userPUT/api/auth/update-profile✅Update namePUT/api/auth/change-password✅Change passwordPOST/api/auth/logout✅Logout (server-side ack)GET/api/health❌Health check
+Example API Usage
+Register
+bashcurl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Jane Smith","email":"jane@example.com","password":"Password123"}'
+Login
+bashcurl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"jane@example.com","password":"Password123"}'
+Protected Route
+bashcurl http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer <your-jwt-token>"
+Password Requirements
+
+Minimum 8 characters
+At least one uppercase letter (A-Z)
+At least one lowercase letter (a-z)
+At least one number (0-9)
+
+Security Details
+
+Passwords hashed with bcrypt (12 rounds)
+JWT tokens expire in 7 days (configurable)
+Auth endpoints rate-limited to 10 requests/15 min
+Account locked for 2 hours after 5 failed login attempts
+password field never returned in API responses (select: false)
+HTTP security headers via Helmet
